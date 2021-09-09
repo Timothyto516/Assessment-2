@@ -166,9 +166,41 @@ select(most_common_desserts,-n)%>%kable()
 
 ###Q11. Present this information on a data viZ
 ```{r}
-Common_all <-rbind.fill(most_common_desserts,most_common_pies,most_common_sides)
+Common_all<-rbind(most_common_desserts,most_common_pies,most_common_sides)%>%
+  arrange(n)
+
+
+Common_all%>%
+   mutate(commonfood=fct_reorder(common_food,desc(numbers)))%>%
+ggplot(aes(commonfood,numbers,fill=type_of_food))+geom_col()+
+  facet_wrap(~type_of_food)+
+  coord_flip()+
+  theme_bw(base_size = 11)+
+  labs(title = "most common type of food during thanksgiving")
+
+
+```
+
+
+
+### Q12. no question
+
+###Q13.How do the servings differ by income? & Q14.Present this information on a data viz
+```{r fig.width=13,fig.height=8}
+
+thanksgiving_meals%>%
+  filter(main_dish!="Other (Please specify)")%>%
+  count(main_dish, family_income)%>%
+  ggplot(aes(main_dish,n, fill=main_dish))+geom_col()+
+  facet_wrap(~family_income)+
+  coord_flip()+
+   theme_dark()+
+  labs(x="Dish", y="Number", title = "Relationship between income and dish prepared in thanksgiving")
   
-  Common_all%>%group_by(common_food)
+
+  
+```
+
 
 
 
