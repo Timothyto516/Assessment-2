@@ -1,0 +1,175 @@
+---
+title: "Practical assignment"
+author: "Timothy To"
+date: "9/2/2021"
+output: html_document
+---
+
+#Part 1
+#<p><h1>Assignment 2 </h1></p>
+
+#<p>___________________________</p>
+
+##<h2> *Sze Yu To* **s4651730**</h2>#
+
+#<p>__________________________</P>
+
+
+![](me.jpg)
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+library(readr)
+library(tidyverse)
+library(skimr)
+library(janitor)
+library(reshape)
+library(tidyr)
+library(knitr)
+library(lubridate)
+library(scales)
+library(formattable)
+library(imager)
+library(plyr)
+library(dplyr)
+
+```
+
+```{r, include=FALSE}
+thanksgiving_meals<-read.csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-11-20/thanksgiving_meals.csv')
+```
+
+#<p>Part 2 </p>
+### Q1.Display the first 10 rows of the dataset using RMarkdown (1 marks)
+```{r}
+
+knitr::kable(thanksgiving_meals[1:10,1:10],"pipe")
+```
+
+
+###Q2.  Use `fct_reorder` and `parse_number` functions to create a factor variable `family_income`.
+```{r}
+thanksgiving_meals%>%
+  mutate(family_income=fct_reorder(family_income,parse_number(family_income)))%>%
+
+knitr::kable()
+
+```
+
+
+###Q3. Generate the general statistics of the dataset using `summary()` and `skim()` function (2 mark)
+
+```{R}
+
+summary(thanksgiving_meals)
+skim(thanksgiving_meals)
+
+```
+
+
+###Q4. What is the number of people who celebrate? - The number of peoples who celebreate is 980
+```{r}
+thanksgiving_meals%>%
+ count(celebrate)%>%
+  knitr::kable()
+  
+  
+  
+```
+
+###Q5. What are categories and stats for each main dish served and the method it is prepared?
+
+```{r}
+
+table(thanksgiving_meals$main_dish,thanksgiving_meals$main_prep)%>%
+   knitr::kable()
+
+```
+
+###Q6.Create a data viz showing this in the most evident way. Provide your own legend and use themes.
+```{r, fig.width=13,fig.height=8}
+
+thanksgiving_meals%>%
+ count(main_dish,main_prep)%>%
+  ggplot(aes(main_prep,n,fill=main_dish))+geom_col()+
+  coord_flip()+
+  facet_wrap(~main_dish)+
+ labs(title = "The most popular way to prepare for each dish")
+
+  
+  
+```
+
+###Q7.How many use cranberry sauce? How many use gravy?
+
+```{r}
+#total of 828 peoples use cranberry sauce
+thanksgiving_meals%>%
+  count(cranberry)
+
+#total of 892 peoples use gravy
+thanksgiving_meals%>%
+  count(gravy)%>%
+  filter(gravy=="Yes")
+
+
+```
+
+###Q8.What is the distribution of those who celebrate across income ranges  & Q9.Present this information in the most evident way on the data viz.
+```{r, fig.width=13,fig.height=8}
+thanksgiving_meals%>%
+  count(celebrate,family_income)%>%
+  filter(celebrate=="Yes")%>%
+  group_by(family_income)%>%
+  ggplot(aes(family_income,n, fill=celebrate))+geom_col()+
+  coord_flip()+
+  theme_bw(base_size = 11)+
+  labs(x="income ranges", y="no. of people", title = "the distribution of those who celebrate across income ranges")
+
+
+```
+
+
+###Q10.What are the most common pies, sides, and desserts?
+```{r}
+
+
+#Pumpkin pie is the most common pie during thanksgiving meal
+most_common_pies<-thanksgiving_meals%>%
+  gather(pie,"common_food",pie1:pie13)%>%count(common_food,sort=TRUE)%>%
+  mutate(n,numbers=(n))
+select(most_common_pies,-n)%>%kable()
+
+
+
+#Mashed potatoes is the most common side during thanksgiving meal
+most_common_sides <-thanksgiving_meals%>%
+  gather(side,"common_food", side1:side15)%>%count(common_food,sort=TRUE)%>%
+  mutate(n,numbes=(n))%>%
+  mutate(type_of_food="pie")
+select(most_common_sides,-n) %>% kable()
+
+
+#Ice cream is the most common dessert during thanksgiving meal
+most_common_desserts<-thanksgiving_meals%>%
+  gather(dessert, "common_food",dessert1:dessert12)%>%count(common_food, sort = TRUE)%>%
+  mutate(n,numbers=(n))
+select(most_common_desserts,-n)%>%kable()
+
+
+```
+
+###Q11. Present this information on a data viZ
+```{r}
+Common_all <-rbind.fill(most_common_desserts,most_common_pies,most_common_sides)
+  
+  Common_all%>%group_by(common_food)
+
+
+
+```
